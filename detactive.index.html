@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detective Conan: The Ultimate Mystery Challenge</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        conanNavy: '#0F172A',
+                        conanNavyDark: '#050B14',
+                        conanBlue: '#1E293B',
+                        conanRed: '#DC2626',
+                        conanGold: '#F59E0B',
+                        conanGoldHover: '#D97706',
+                        paperBg: '#FDFBF7'
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Fredoka', 'sans-serif'],
+                        detective: ['Special Elite', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0F172A;
+            background-image: 
+                radial-gradient(#1E293B 1.5px, transparent 1.5px), 
+                radial-gradient(#1E293B 1.5px, #0F172A 1.5px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: #FFFFFF;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .detective-card {
+            border: 4px solid #F59E0B;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.25);
+        }
+
+        .pin-shadow {
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.6);
+        }
+
+        @keyframes conanGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.6), 0 0 5px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.9), 0 0 18px rgba(245, 158, 11, 0.8); }
+        }
+
+        .glow-effect {
+            animation: conanGlow 2.2s infinite;
+        }
+
+        @keyframes glassesShine {
+            0% { opacity: 0.1; transform: translateX(-100%) rotate(45deg); }
+            25%, 100% { opacity: 0.95; transform: translateX(200%) rotate(45deg); }
+        }
+
+        .shine-line {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.85), transparent);
+            animation: glassesShine 3.5s infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F172A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #DC2626;
+            border-radius: 4px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-certificate, #printable-certificate * {
+                visibility: visible;
+            }
+            #printable-certificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 24px;
+                background: white !important;
+                color: black !important;
+                box-shadow: none !important;
+                border: 6px double #F59E0B !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between font-sans overflow-x-hidden antialiased">
+
+    <!-- HEADER BAR -->
+    <header class="bg-conanNavyDark border-b-2 border-conanGold px-4 py-3 sticky top-0 z-40 shadow-xl">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-conanRed rounded-full flex items-center justify-center text-white border-2 border-conanGold shadow-md">
+                    <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-lg md:text-xl text-conanGold tracking-wide leading-tight">DETECTIVE CONAN</h1>
+                    <p class="text-xs text-gray-300 font-detective tracking-wider">BAHASA MELAYU TAHUN 5</p>
+                </div>
+            </div>
+
+            <!-- Stats & Sound Controls -->
+            <div class="flex items-center space-x-3">
+                <div id="game-stats" class="hidden flex items-center space-x-2 bg-conanBlue px-3 py-1.5 rounded-lg border border-conanGold/40">
+                    <i class="fa-solid fa-star text-conanGold"></i>
+                    <span id="score-display" class="font-bold text-lg text-conanGold">0</span>
+                    <span class="text-xs text-gray-300">/100</span>
+                </div>
+
+                <button id="btn-sound" onclick="toggleSound()" class="w-10 h-10 bg-conanBlue hover:bg-slate-800 text-conanGold rounded-full border border-conanGold flex items-center justify-center transition shadow-md" title="Bunyi On/Off">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-3 md:p-6">
+        <div class="w-full max-w-4xl mx-auto">
+
+            <!-- 1. START SCREEN -->
+            <section id="screen-start" class="bg-conanBlue/95 detective-card rounded-2xl p-6 md:p-10 text-center relative overflow-hidden backdrop-blur-md">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-conanRed/10 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-conanGold/10 rounded-full blur-3xl"></div>
+
+                <!-- Glasses & Ribbon Icon -->
+                <div class="relative inline-block my-4">
+                    <div class="relative w-36 h-20 mx-auto bg-conanNavyDark rounded-xl border-4 border-conanGold flex items-center justify-center overflow-hidden shadow-2xl">
+                        <svg class="w-28 h-14 text-conanGold" viewBox="0 0 100 50" fill="currentColor">
+                            <rect x="5" y="10" width="38" height="30" rx="6" fill="none" stroke="currentColor" stroke-width="4"/>
+                            <rect x="57" y="10" width="38" height="30" rx="6" fill="none" stroke="currentColor" stroke-width="4"/>
+                            <line x1="43" y1="20" x2="57" y2="20" stroke="currentColor" stroke-width="4"/>
+                            <polygon points="10,35 30,12 35,12 15,35" fill="white" opacity="0.65"/>
+                            <polygon points="62,35 82,12 87,12 67,35" fill="white" opacity="0.65"/>
+                        </svg>
+                        <div class="shine-line"></div>
+                    </div>
+                    <div class="w-16 h-8 bg-conanRed mx-auto -mt-3 rounded-full flex items-center justify-center shadow-lg relative z-10 border border-white/30">
+                        <div class="w-4 h-4 bg-red-800 rounded-full"></div>
+                    </div>
+                </div>
+
+                <h2 class="font-heading text-2xl md:text-4xl font-extrabold text-conanGold mb-2 tracking-wide">
+                    THE ULTIMATE MYSTERY CHALLENGE
+                </h2>
+                <p class="text-gray-200 font-detective text-sm md:text-base max-w-xl mx-auto mb-6">
+                    Satu misteri tatabahasa melanda! Bantu Conan Edogawa menyelesaikan kes <span class="text-conanGold font-bold">Kata Nama Am</span> dan <span class="text-conanGold font-bold">Kata Nama Khas</span> untuk membongkar petunjuk rahsia.
+                </p>
+
+                <!-- Instructions Card -->
+                <div class="bg-conanNavy/90 border border-conanGold/30 rounded-xl p-4 text-left max-w-lg mx-auto mb-6 text-xs md:text-sm space-y-2 shadow-inner">
+                    <div class="font-bold text-conanGold flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-clipboard-list text-conanRed"></i> ARAHAN MISI DETEKTIF:
+                    </div>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300">
+                        <li>Selesaikan <span class="text-white font-semibold">10 Cabaran Kes</span> tatabahasa.</li>
+                        <li><strong>Cabaran 1:</strong> Teka Identiti (Pilihan Aneka)</li>
+                        <li><strong>Cabaran 2:</strong> Klasifikasi Bukti (Pengelasan Kategori)</li>
+                        <li><strong>Cabaran 3:</strong> Lengkapkan Petunjuk (Isi Tempat Kosong)</li>
+                        <li>Jawapan betul memberikan <span class="text-conanGold font-bold">10 Markah</span>.</li>
+                    </ul>
+                </div>
+
+                <!-- Input Detective Name -->
+                <div class="max-w-xs mx-auto mb-6">
+                    <label for="player-name-input" class="block text-xs font-bold text-conanGold uppercase tracking-wider mb-2">Nama Detektif Muda:</label>
+                    <input type="text" id="player-name-input" placeholder="Masukkan Nama Anda..." class="w-full px-4 py-3 bg-conanNavyDark border-2 border-conanGold rounded-xl text-center text-white font-bold focus:outline-none focus:border-conanRed transition shadow-inner">
+                </div>
+
+                <button onclick="startGame()" class="px-8 py-3.5 bg-gradient-to-r from-conanRed to-red-700 hover:from-red-600 hover:to-conanRed text-white font-heading font-extrabold text-lg md:text-xl rounded-xl shadow-lg transform hover:-translate-y-1 transition duration-200 border-2 border-conanGold glow-effect flex items-center justify-center gap-3 mx-auto">
+                    <i class="fa-solid fa-play"></i> MULA MISI PENYIASATAN
+                </button>
+            </section>
+
+            <!-- 2. GAME DASHBOARD SCREEN -->
+            <section id="screen-game" class="hidden bg-conanBlue detective-card rounded-2xl p-4 md:p-8 relative">
+                
+                <!-- Status Bar -->
+                <div class="bg-conanNavyDark p-3 md:p-4 rounded-xl border border-conanGold/40 mb-5 flex flex-wrap justify-between items-center gap-3 shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <span id="challenge-badge" class="px-3 py-1 bg-conanRed text-white text-xs font-extrabold uppercase rounded-full tracking-wider border border-conanGold">
+                            CABARAN 1
+                        </span>
+                        <span class="text-xs md:text-sm text-gray-300 font-bold">
+                            Soalan <span id="current-question-num" class="text-conanGold text-base">1</span> / 10
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-2 bg-conanNavy px-3 py-1.5 rounded-lg border border-gray-700 w-full sm:w-auto justify-center">
+                        <i class="fa-solid fa-stopwatch text-conanGold animate-pulse"></i>
+                        <span class="text-xs text-gray-300">Masa:</span>
+                        <span id="timer-display" class="font-mono text-lg font-bold text-conanGold">30</span>
+                        <span class="text-xs text-gray-300">s</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-conanNavyDark h-3 rounded-full overflow-hidden mb-6 border border-gray-800">
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-conanRed to-conanGold h-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- EVIDENCE BOARD (QUESTION AREA) -->
+                <div class="bg-paperBg text-conanNavy p-5 md:p-8 rounded-xl shadow-2xl border-4 border-amber-900/40 relative mb-4">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-conanRed rounded-full border-2 border-white pin-shadow flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+
+                    <div class="inline-block bg-conanNavy text-conanGold text-xs font-detective font-bold px-3 py-1 rounded uppercase tracking-widest mb-3">
+                        <i class="fa-solid fa-folder-open mr-1"></i> FAIL KES <span id="case-id">#001</span>
+                    </div>
+
+                    <h3 id="question-text" class="text-base md:text-xl font-bold text-slate-900 mb-6 leading-relaxed">
+                        Memuatkan soalan...
+                    </h3>
+
+                    <!-- ANSWER CONTAINER -->
+                    <div id="answer-container" class="space-y-3">
+                        <!-- Options injected dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. FEEDBACK POPUP MODAL -->
+            <div id="modal-feedback" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+                <div class="bg-conanBlue border-4 border-conanGold rounded-2xl max-w-lg w-full p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+                    
+                    <div id="modal-icon-container" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg border-2">
+                        <i id="modal-icon" class="fa-solid fa-check"></i>
+                    </div>
+
+                    <h3 id="modal-title" class="font-heading text-2xl font-bold mb-1">JAWAPAN BETUL!</h3>
+                    <p id="modal-subtitle" class="text-sm font-semibold text-conanGold mb-4">+10 MARKAH DILULUSKAN</p>
+
+                    <div class="bg-conanNavyDark/90 border border-conanGold/40 p-4 rounded-xl text-left mb-6 text-sm text-gray-200 shadow-inner">
+                        <p class="font-bold text-conanGold mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-book-open"></i> PENERANGAN TATABAHASA:
+                        </p>
+                        <p id="modal-explanation" class="text-xs md:text-sm leading-relaxed">
+                            Penerangan tatabahasa akan dipaparkan di sini.
+                        </p>
+                    </div>
+
+                    <button onclick="nextQuestion()" class="w-full py-3 bg-conanRed hover:bg-red-600 text-white font-bold rounded-xl shadow-lg border border-conanGold transition flex items-center justify-center gap-2 text-base">
+                        TERUSKAN PENYIASATAN <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. FINAL RESULT & DIGITAL CERTIFICATE SCREEN -->
+            <section id="screen-result" class="hidden bg-conanBlue detective-card rounded-2xl p-6 md:p-10 text-center relative">
+                
+                <div class="no-print">
+                    <h2 class="font-heading text-3xl md:text-4xl font-extrabold text-conanGold mb-2 tracking-wide">
+                        MISI PENYIASATAN SELESAI!
+                    </h2>
+                    <p class="text-gray-200 text-sm mb-4">Tahniah! Berikut ialah laporan pencapaian detektif anda:</p>
+                </div>
+
+                <!-- CERTIFICATE DISPLAY CARD -->
+                <div id="printable-certificate" class="bg-paperBg text-conanNavy p-6 md:p-10 rounded-2xl border-8 border-double border-conanGold shadow-2xl max-w-2xl mx-auto relative my-4">
+                    
+                    <i class="fa-solid fa-magnifying-glass absolute top-4 left-4 text-conanGold/30 text-3xl"></i>
+                    <i class="fa-solid fa-award absolute top-4 right-4 text-conanGold/30 text-3xl"></i>
+
+                    <div class="text-center border-b-2 border-conanGold pb-4 mb-6">
+                        <span class="text-xs uppercase tracking-widest font-bold text-conanRed">Lembaga Penyiasat Bahasa Melayu Sekolah Rendah</span>
+                        <h3 class="font-heading font-extrabold text-2xl md:text-3xl text-conanNavy mt-1">SIJIL PENCAPAIAN DETEKTIF</h3>
+                        <p class="text-xs text-gray-600 font-detective">DETECTIVE CONAN: THE ULTIMATE MYSTERY CHALLENGE</p>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <p class="text-xs text-gray-500 uppercase font-bold">Dianugerahkan Kepada:</p>
+                        <h4 id="cert-player-name" class="font-heading text-2xl md:text-3xl font-bold text-conanRed underline decoration-conanGold decoration-2">
+                            DETEKTIF MUDA
+                        </h4>
+                        <p class="text-sm text-gray-700 max-w-md mx-auto">
+                            Kerana telah berjaya menyelesaikan 10 Cabaran Kes Kata Nama Am & Kata Nama Khas dengan markah:
+                        </p>
+                        <div class="inline-block bg-conanNavy text-conanGold px-6 py-2 rounded-xl text-3xl font-extrabold shadow-md">
+                            <span id="cert-score">0</span> / 100
+                        </div>
+                    </div>
+
+                    <!-- Rank Display -->
+                    <div class="bg-amber-50 border border-conanGold rounded-xl p-4 flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+                        <div id="cert-badge-icon" class="w-16 h-16 bg-conanGold rounded-full flex items-center justify-center text-3xl text-conanNavy shadow-md border-2 border-white">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <span class="text-xs font-bold text-gray-500 uppercase">GELARAN DETEKTIF:</span>
+                            <h5 id="cert-rank-title" class="font-heading font-extrabold text-xl text-conanRed">
+                                DETEKTIF PAKAR
+                            </h5>
+                            <p id="cert-rank-desc" class="text-xs text-gray-600">
+                                Menguasai tatabahasa dengan cemerlang bak Conan Edogawa!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Certificate Footer -->
+                    <div class="flex justify-between items-end text-left pt-4 border-t border-gray-300 text-xs text-gray-600">
+                        <div>
+                            <p>Tarikh: <span id="cert-date">--/--/----</span></p>
+                            <p>Status: <span class="text-green-700 font-bold">MISI LENGKAP</span></p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-detective font-bold text-conanNavy text-sm">CONAN EDOGAWA</div>
+                            <p>Ketua Pasukan Detektif</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="no-print flex flex-wrap justify-center gap-4 mt-6">
+                    <button onclick="window.print()" class="px-6 py-3 bg-conanBlue hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg border border-conanGold transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> Cetak / Muat Turun Sijil
+                    </button>
+                    <button onclick="resetGame()" class="px-6 py-3 bg-conanRed hover:bg-red-600 text-white font-bold rounded-xl shadow-lg border border-conanGold transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Main Semula Misi
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-conanNavyDark border-t border-gray-800 py-3 text-center text-xs text-gray-400 no-print">
+        <p>Detective Conan: Mystery Challenge &copy; Bahasa Melayu Tahun 5 | Modul Interaktif Kata Nama Am & Khas</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. QUESTION DATABASE (10 QUESTIONS ACCORDING TO YEAR 5 BM SYLLABUS)
+           ========================================================================== */
+        const questions = [
+            // CABARAN 1: TEKA IDENTITI (4 MCQ Questions)
+            {
+                id: 1,
+                challenge: "CABARAN 1: TEKA IDENTITI",
+                type: "mcq",
+                question: "Antara perkataan berikut, manakah merupakan Kata Nama Khas?",
+                options: ["hospital", "Hospital Taiping", "sekolah", "doktor"],
+                answer: 1,
+                explanation: "'Hospital Taiping' ialah Kata Nama Khas kerana merujuk nama tempat khusus dan ditulis dengan huruf besar pada setiap awal kata."
+            },
+            {
+                id: 2,
+                challenge: "CABARAN 1: TEKA IDENTITI",
+                type: "mcq",
+                question: "Pilih ayat yang mempunyai penggunaan Kata Nama Am yang betul:",
+                options: [
+                    "Abang memandu Proton Saga ke pejabat.",
+                    "Sang Kancil memperdayakan buaya di tepi sungai.",
+                    "Guru besar menyampaikan sijil kepada murid-murid di dewan.",
+                    "Kami melawat Zoo Negara pada hari Sabtu."
+                ],
+                answer: 2,
+                explanation: "Dalam ayat C, perkataan 'guru besar', 'sijil', 'murid-murid', dan 'dewan' ialah Kata Nama Am yang merujuk perkara secara umum dan ditulis dengan huruf kecil."
+            },
+            {
+                id: 3,
+                challenge: "CABARAN 1: TEKA IDENTITI",
+                type: "mcq",
+                question: "Perkataan 'Si Comel' merujuk kepada Kata Nama Khas bagi kategori:",
+                options: ["Manusia", "Haiwan", "Tempat", "Benda"],
+                answer: 1,
+                explanation: "'Si Comel' ialah Kata Nama Khas bagi haiwan peliharaan khusus dan diawali dengan huruf besar."
+            },
+            {
+                id: 4,
+                challenge: "CABARAN 1: TEKA IDENTITI",
+                type: "mcq",
+                question: "Apakah Kata Nama Am bagi perkataan 'Perodua Myvi'?",
+                options: ["Bangunan", "Kereta / Kenderaan", "Negeri", "Sungai"],
+                answer: 1,
+                explanation: "'Perodua Myvi' ialah Kata Nama Khas bagi model kereta. Kata Nama Am yang sepadan dengannya ialah 'kereta' atau 'kenderaan'."
+            },
+
+            // CABARAN 2: KLASIFIKASI BUKTI (3 Classification Questions)
+            {
+                id: 5,
+                challenge: "CABARAN 2: KLASIFIKASI BUKTI",
+                type: "classify",
+                question: "Kelaskan perkataan bukti berikut kepada kategori yang tepat:",
+                targetWord: "Kuala Lumpur",
+                options: ["Kata Nama Am", "Kata Nama Khas"],
+                answer: 1,
+                explanation: "'Kuala Lumpur' ialah Kata Nama Khas kerana merujuk khusus kepada nama ibu negara Malaysia dan mesti ditulis dengan huruf besar."
+            },
+            {
+                id: 6,
+                challenge: "CABARAN 2: KLASIFIKASI BUKTI",
+                type: "classify",
+                question: "Kelaskan perkataan bukti berikut kepada kategori yang tepat:",
+                targetWord: "perpustakaan",
+                options: ["Kata Nama Am", "Kata Nama Khas"],
+                answer: 0,
+                explanation: "'perpustakaan' ialah Kata Nama Am kerana merujuk kepada tempat membaca buku secara umum tanpa menyebut nama khasnya."
+            },
+            {
+                id: 7,
+                challenge: "CABARAN 2: KLASIFIKASI BUKTI",
+                type: "classify",
+                question: "Kelaskan perkataan bukti berikut kepada kategori yang tepat:",
+                targetWord: "Cikgu Zarina",
+                options: ["Kata Nama Am", "Kata Nama Khas"],
+                answer: 1,
+                explanation: "'Cikgu Zarina' ialah Kata Nama Khas merujuk khusus kepada individu/orang."
+            },
+
+            // CABARAN 3: LENGKAPKAN PETUNJUK (3 Fill-in-the-blank Questions)
+            {
+                id: 8,
+                challenge: "CABARAN 3: LENGKAPKAN PETUNJUK",
+                type: "fill",
+                question: "Encik Amir membawa keluarganya melawat ke ________ di Pahang.",
+                options: ["taman", "Taman Negara"],
+                answer: 1,
+                explanation: "'Taman Negara' ialah Kata Nama Khas bagi kawasan taman perlindungan alam semula jadi yang khusus di Pahang."
+            },
+            {
+                id: 9,
+                challenge: "CABARAN 3: LENGKAPKAN PETUNJUK",
+                type: "fill",
+                question: "Semua ________ dikehendaki berkumpul di padang sekolah sebelum aktiviti bermula.",
+                options: ["murid", "Murid"],
+                answer: 0,
+                explanation: "Perkataan 'murid' merujuk kepada kumpulan manusia secara umum dalam ayat ini, maka ia ialah Kata Nama Am dan ditulis dengan huruf kecil."
+            },
+            {
+                id: 10,
+                challenge: "CABARAN 3: LENGKAPKAN PETUNJUK",
+                type: "fill",
+                question: "________ ialah lagu kebangsaan rasmi bagi negara Malaysia.",
+                options: ["lagu", "Negaraku"],
+                answer: 1,
+                explanation: "'Negaraku' ialah Kata Nama Khas bagi tajuk lagu kebangsaan Malaysia, maka ejaannya bermula dengan huruf besar."
+            }
+        ];
+
+        /* ==========================================================================
+           2. GAME STATE MANAGEMENT
+           ========================================================================== */
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = "Detektif Muda";
+        let timer = null;
+        let timeLeft = 30;
+        let soundEnabled = true;
+
+        /* ==========================================================================
+           3. WEB AUDIO API SYNTHESIZER
+           ========================================================================== */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } 
+                else if (type === 'correct') {
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc1.type = 'triangle';
+                    osc2.type = 'triangle';
+
+                    osc1.frequency.setValueAtTime(523.25, now); // C5
+                    osc1.frequency.setValueAtTime(659.25, now + 0.1); // E5
+
+                    osc2.frequency.setValueAtTime(659.25, now); 
+                    osc2.frequency.setValueAtTime(783.99, now + 0.1); // G5
+
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+
+                    osc1.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + 0.35);
+                    osc2.stop(now + 0.35);
+                } 
+                else if (type === 'wrong') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } 
+                else if (type === 'victory') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, index) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + index * 0.12);
+                        gain.gain.setValueAtTime(0.25, now + index * 0.12);
+                        gain.gain.linearRampToValueAtTime(0.01, now + index * 0.12 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + index * 0.12);
+                        osc.stop(now + index * 0.12 + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio Error:", e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                playSound('click');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-red-400';
+            }
+        }
+
+        /* ==========================================================================
+           4. GAME FLOW FUNCTIONS
+           ========================================================================== */
+        function startGame() {
+            initAudio();
+            playSound('click');
+
+            const nameInput = document.getElementById('player-name-input').value.trim();
+            playerName = nameInput !== "" ? nameInput : "Detektif Muda";
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('game-stats').classList.remove('hidden');
+
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreDisplay();
+            loadQuestion();
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-display').textContent = score;
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            document.getElementById('timer-display').textContent = timeLeft;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        /* ==========================================================================
+           5. RENDER QUESTION
+           ========================================================================== */
+        function loadQuestion() {
+            startTimer();
+
+            const q = questions[currentQuestionIndex];
+
+            document.getElementById('challenge-badge').textContent = q.challenge;
+            document.getElementById('current-question-num').textContent = currentQuestionIndex + 1;
+            document.getElementById('case-id').textContent = `#00${q.id}`;
+
+            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-bar-fill').style.width = `${progressPercent}%`;
+
+            const questionTextEl = document.getElementById('question-text');
+            const answerContainer = document.getElementById('answer-container');
+            answerContainer.innerHTML = '';
+
+            if (q.type === 'mcq') {
+                questionTextEl.innerHTML = q.question;
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full p-4 bg-white hover:bg-amber-50 text-conanNavy font-semibold rounded-xl border-2 border-gray-300 hover:border-conanGold text-left transition flex items-center justify-between shadow-sm transform hover:-translate-y-0.5";
+                    btn.innerHTML = `
+                        <span class="flex items-center gap-3">
+                            <span class="w-7 h-7 bg-conanNavy text-conanGold font-bold text-xs rounded-full flex items-center justify-center border border-conanGold">
+                                ${String.fromCharCode(65 + idx)}
+                            </span>
+                            <span>${opt}</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+                    `;
+                    btn.onclick = () => checkAnswer(idx);
+                    answerContainer.appendChild(btn);
+                });
+            } 
+            else if (q.type === 'classify') {
+                questionTextEl.innerHTML = `${q.question} <br><div class="mt-4 inline-block bg-conanNavy text-conanGold px-6 py-2 rounded-lg text-2xl font-bold tracking-wide border-2 border-conanGold shadow-inner">${q.targetWord}</div>`;
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2";
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-5 bg-white hover:bg-amber-50 text-conanNavy font-bold text-lg rounded-xl border-2 border-gray-300 hover:border-conanRed text-center transition shadow transform hover:-translate-y-0.5 flex flex-col items-center justify-center gap-2";
+                    btn.innerHTML = `
+                        <i class="fa-solid ${idx === 0 ? 'fa-box-archive text-blue-600' : 'fa-certificate text-conanRed'} text-2xl"></i>
+                        <span>${opt}</span>
+                    `;
+                    btn.onclick = () => checkAnswer(idx);
+                    gridDiv.appendChild(btn);
+                });
+                answerContainer.appendChild(gridDiv);
+            } 
+            else if (q.type === 'fill') {
+                questionTextEl.innerHTML = q.question.replace('________', '<span class="underline decoration-conanRed decoration-4 font-extrabold text-conanRed px-2">[ _____ ]</span>');
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2";
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-4 bg-white hover:bg-amber-50 text-conanNavy font-bold text-base rounded-xl border-2 border-gray-300 hover:border-conanGold text-center transition shadow transform hover:-translate-y-0.5";
+                    btn.innerHTML = `<i class="fa-solid fa-pen-clip text-conanGold mr-2"></i> ${opt}`;
+                    btn.onclick = () => checkAnswer(idx);
+                    gridDiv.appendChild(btn);
+                });
+                answerContainer.appendChild(gridDiv);
+            }
+        }
+
+        /* ==========================================================================
+           6. CHECK ANSWER & MODALS
+           ========================================================================== */
+        function checkAnswer(selectedIndex) {
+            stopTimer();
+            const q = questions[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+
+            if (isCorrect) {
+                score += 10;
+                updateScoreDisplay();
+                playSound('correct');
+                showModal(true, q.explanation);
+            } else {
+                playSound('wrong');
+                showModal(false, q.explanation);
+            }
+        }
+
+        function handleTimeOut() {
+            const q = questions[currentQuestionIndex];
+            playSound('wrong');
+            showModal(false, `Masa tamat! ${q.explanation}`);
+        }
+
+        function showModal(isCorrect, explanation) {
+            const modal = document.getElementById('modal-feedback');
+            const iconContainer = document.getElementById('modal-icon-container');
+            const icon = document.getElementById('modal-icon');
+            const title = document.getElementById('modal-title');
+            const subtitle = document.getElementById('modal-subtitle');
+            const expText = document.getElementById('modal-explanation');
+
+            if (isCorrect) {
+                iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg border-2 bg-green-900/80 border-green-400 text-green-300";
+                icon.className = "fa-solid fa-check";
+                title.textContent = "BUKTI DITEMUI! (BETUL)";
+                title.className = "font-heading text-2xl font-bold mb-1 text-green-400";
+                subtitle.textContent = "+10 MARKAH DILULUSKAN";
+                subtitle.className = "text-sm font-semibold text-conanGold mb-4";
+            } else {
+                iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg border-2 bg-red-900/80 border-red-400 text-red-300";
+                icon.className = "fa-solid fa-xmark";
+                title.textContent = "BUKTI PALSU! (SALAH)";
+                title.className = "font-heading text-2xl font-bold mb-1 text-conanRed";
+                subtitle.textContent = "+0 MARKAH";
+                subtitle.className = "text-sm font-semibold text-gray-400 mb-4";
+            }
+
+            expText.textContent = explanation;
+            modal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            document.getElementById('modal-feedback').classList.add('hidden');
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        /* ==========================================================================
+           7. RESULTS & CERTIFICATE GENERATION
+           ========================================================================== */
+        function showResults() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            document.getElementById('progress-bar-fill').style.width = '100%';
+
+            document.getElementById('cert-player-name').textContent = playerName.toUpperCase();
+            document.getElementById('cert-score').textContent = score;
+
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('ms-MY', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('cert-date').textContent = dateStr;
+
+            const certBadgeIcon = document.getElementById('cert-badge-icon');
+            const certRankTitle = document.getElementById('cert-rank-title');
+            const certRankDesc = document.getElementById('cert-rank-desc');
+
+            if (score >= 90) {
+                certBadgeIcon.className = "w-16 h-16 bg-conanGold rounded-full flex items-center justify-center text-3xl text-conanNavy shadow-md border-2 border-white";
+                certBadgeIcon.innerHTML = `<i class="fa-solid fa-crown"></i>`;
+                certRankTitle.textContent = "DETEKTIF PAKAR";
+                certRankTitle.className = "font-heading font-extrabold text-xl text-yellow-600";
+                certRankDesc.textContent = "Hebat! Penguasaan Bahasa Melayu anda setaraf tajam dengan Conan Edogawa!";
+            } else if (score >= 80) {
+                certBadgeIcon.className = "w-16 h-16 bg-slate-300 rounded-full flex items-center justify-center text-3xl text-slate-800 shadow-md border-2 border-white";
+                certBadgeIcon.innerHTML = `<i class="fa-solid fa-award"></i>`;
+                certRankTitle.textContent = "DETEKTIF CEMERLANG";
+                certRankTitle.className = "font-heading font-extrabold text-xl text-slate-600";
+                certRankDesc.textContent = "Sangat baik! Anda berjaya merungkaikan sebahagian besar misteri tatabahasa.";
+            } else if (score >= 60) {
+                certBadgeIcon.className = "w-16 h-16 bg-amber-700 rounded-full flex items-center justify-center text-3xl text-white shadow-md border-2 border-white";
+                certBadgeIcon.innerHTML = `<i class="fa-solid fa-shield-halved"></i>`;
+                certRankTitle.textContent = "DETEKTIF BERKEMBANG";
+                certRankTitle.className = "font-heading font-extrabold text-xl text-amber-800";
+                certRankDesc.textContent = "Usaha yang baik! Teruskan latihan untuk menjadi detektif bahasa yang lebih mahir.";
+            } else {
+                certBadgeIcon.className = "w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center text-3xl text-blue-800 shadow-md border-2 border-white";
+                certBadgeIcon.innerHTML = `<i class="fa-solid fa-user-graduate"></i>`;
+                certRankTitle.textContent = "DETEKTIF PELATIH";
+                certRankTitle.className = "font-heading font-extrabold text-xl text-conanBlue";
+                certRankDesc.textContent = "Jangan putus asa! Cuba lagi misi ini untuk memantapkan pemahaman Kata Nama Am dan Khas.";
+            }
+
+            playSound('victory');
+        }
+
+        function resetGame() {
+            playSound('click');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+            document.getElementById('game-stats').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
